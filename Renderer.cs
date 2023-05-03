@@ -15,10 +15,37 @@ namespace Visuals.Render
 		}
 		private Element[] Elements { get; set; }
 
+		private int SizeI { get => BufferCache.GetLength(1); }
+		private int SizeJ { get => BufferCache.GetLength(0); }
+
 		public Renderer(int elementsCount, int dimI, int dimJ)
 		{
 			BufferCache = new char[dimI, dimJ];
 			Elements = new Element[elementsCount];
+		}
+
+		public void AddElement(Element element)
+		{
+			Elements[0] = element; // TODO Remember this is a test
+		}
+
+		public void Render()
+		{
+			UpdateBuffer();
+			Console.CursorVisible = false;
+			StringBuilder sb = new(SizeI * SizeJ);
+
+			for (int j = 0; j < SizeJ; j++)
+			{
+				for (int i = 0; i < SizeI; i++)
+				{
+					char c = BufferCache[j, i];
+					sb.Append(c == 0? ' ' : c);
+				}
+				sb.Append('\n');
+			}
+			Console.SetCursorPosition(0, 0);
+			Console.Write(sb);
 		}
 
 		private void CopyFrom(Element element)
@@ -28,19 +55,22 @@ namespace Visuals.Render
 
 		private static void CopyFrom(char[,] source, ref char[,] destination, int offsetI, int offsetJ)
 		{
-			for (int j = 0; j < source.GetLength(1); j++) // Row iteration
+			for (int j = 0; j < source.GetLength(0); j++) // Row iteration
 			{
-				for (int i = 0; i < source.GetLength(0); i++) // Char iteration
+				for (int i = 0; i < source.GetLength(1); i++) // Char iteration
 				{
-					destination[i+offsetI, j+offsetJ] = source[i, j];
+					destination[j + offsetJ, i + offsetI] = source[j, i];
 				}
 			}
 		}
 
-		private void FillBuffer()
+		private void UpdateBuffer()
 		{
 			foreach (var element in Elements)
-				CopyFrom(element);
+			{
+				if (element.enabled)
+					CopyFrom(element);
+			}
 		}
 	}
 
