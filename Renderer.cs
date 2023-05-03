@@ -1,4 +1,6 @@
-﻿namespace Visuals.Render
+﻿using System.Text;
+
+namespace Visuals.Render
 {
 
 	/// <summary>
@@ -6,16 +8,40 @@
 	/// </summary>
 	class Renderer
 	{
-		private char[,] BufferCache { get; set; }
+		private char[,] _bufferCache;
+		private char[,] BufferCache {
+			get => _bufferCache;
+			set => _bufferCache = value;
+		}
 		private Element[] Elements { get; set; }
 
-		public Renderer(int elementsCount, int dimX, int dimY)
+		public Renderer(int elementsCount, int dimI, int dimJ)
 		{
-			BufferCache = new char[dimX, dimY];
+			BufferCache = new char[dimI, dimJ];
 			Elements = new Element[elementsCount];
 		}
 
-		public void Render() { }
+		private void CopyFrom(Element element)
+		{
+			CopyFrom(element.renderable.Render(), ref _bufferCache, element.offsetI, element.offsetJ);
+		}
+
+		private static void CopyFrom(char[,] source, ref char[,] destination, int offsetI, int offsetJ)
+		{
+			for (int j = 0; j < source.GetLength(1); j++) // Row iteration
+			{
+				for (int i = 0; i < source.GetLength(0); i++) // Char iteration
+				{
+					destination[i+offsetI, j+offsetJ] = source[i, j];
+				}
+			}
+		}
+
+		private void FillBuffer()
+		{
+			foreach (var element in Elements)
+				CopyFrom(element);
+		}
 	}
 
 	/// <summary>
@@ -23,7 +49,8 @@
 	/// </summary>
 	struct Element
 	{
-		public int x, y;
+		public bool enabled;
+		public int offsetI, offsetJ;
 		public IRenderable renderable;
 	}
 

@@ -6,6 +6,8 @@
 	/// </summary>
 	interface IRenderable
 	{
+		public int SizeI { get; }
+		public int SizeJ { get; }
 		public char[,] Render();
 	}
 }
