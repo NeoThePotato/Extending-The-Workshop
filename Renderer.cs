@@ -20,7 +20,7 @@ namespace Visuals.Render
 
 		public Renderer(int elementsCount, int dimI, int dimJ)
 		{
-			BufferCache = new char[dimI, dimJ];
+			BufferCache = new char[dimJ, dimI];
 			Elements = new Element[elementsCount];
 		}
 
