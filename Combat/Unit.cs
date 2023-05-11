@@ -1,24 +1,35 @@
 ﻿using Combat.Equipment;
+using Templates;
 
 namespace Combat
 {
 
     class Unit
     {
-        // Stats
-        public string Name { get; private set; }
+		// Stats
+        private string _name;
+		private int _maxHP;
+        private int _currentHP;
+        private int _strength;
+		// Equipment
+		private Weapon? _equippedWeapon;
+		private Armor? _equippedShield;
+		private Armor? _equippedBodyArmor;
+
+		public string Name
+        {
+            get => _name;
+            private set => _name = value;
+        }
         public int MaxHP
         {
-            get
-            {
-                return MaxHP;
-            }
+            get => _maxHP;
 
             private set
             {
-                int modifyMaxHP = value - MaxHP;
+                int modifyMaxHP = value - _maxHP;
                 int increaseCurrentHP = Math.Max(0, modifyMaxHP);
-                MaxHP += modifyMaxHP;
+				_maxHP += modifyMaxHP;
                 CurrentHP += increaseCurrentHP;
             }
         }
@@ -26,53 +37,68 @@ namespace Combat
         {
             get
             {
-                return CurrentHP;
+                return _currentHP;
             }
 
             private set
             {
-                CurrentHP = Math.Max(0, Math.Min(value, MaxHP));
+				_currentHP = Math.Max(0, Math.Min(value, MaxHP));
             }
         }
         public int Strength
         {
             get
             {
-                return Strength;
+                return _strength;
             }
 
             private set
             {
-                Strength = Math.Max(0, value);
+				_strength = Math.Max(0, value);
             }
         }
-        public bool Blocking { get; set; }
+        public bool Blocking
+        {
+            get;
+            set;
+        }
         public bool Dead
         {
             get => CurrentHP == 0;
         }
         private int EffectiveAttack
         {
-            get => Strength + _weapon.Damage;
+            get => Strength + Weapon.Damage;
         }
         private int EffectiveDefense
         {
-            get => _bodyArmor.Defense + (Blocking ? _shield.Defense : 0);
+            get => BodyArmor.Defense + (Blocking ? Shield.Defense : 0);
         }
+        public Weapon Weapon
+        {
+            get => _equippedWeapon == null? Templates.Weapons.nothing : _equippedWeapon;
+            set => _equippedWeapon = value;
+		}
+		public Armor Shield
+		{
+			get => _equippedShield == null ? Templates.Armors.nothing : _equippedShield;
+			set => _equippedShield = value;
+		}
+		public Armor BodyArmor
+		{
+			get => _equippedBodyArmor == null ? Templates.Armors.nothing : _equippedBodyArmor;
+			set => _equippedBodyArmor = value;
+		}
 
-        // Equipment
-        private Weapon _weapon;
-        private Armor _shield;
-        private Armor _bodyArmor;
-
-        public Unit(string name, int HP, Weapon weapon, Armor shield, Armor armor)
+		public Unit(string name, int HP, int strength, Weapon weapon, Armor shield, Armor bodyArmor)
         {
             Name = name;
             MaxHP = HP;
             CurrentHP = MaxHP;
-            _weapon = weapon;
-            _shield = shield;
-            _bodyArmor = armor;
+            Strength = strength;
+            Weapon = weapon;
+            Shield = shield;
+            BodyArmor = bodyArmor;
         }
 
         public void AttackOther(Unit other)
@@ -92,7 +118,7 @@ namespace Combat
 
         public string GetStats()
         {
-            return $"{this}\nHP: {CurrentHP}/{MaxHP}.\nWeapon: {_weapon.GetStats()}\nShield: {_shield.GetStats()}\nBody Armor: {_bodyArmor.GetStats()}";
+            return $"{this}\nHP: {CurrentHP}/{MaxHP}.\nWeapon: {Weapon.GetStats()}\nShield: {Shield.GetStats()}\nBody Armor: {BodyArmor.GetStats()}";
         }
 
         public override string ToString()
