@@ -3,38 +3,28 @@
 
 	class Shield
 	{
-		private string _name;
-		private int _shield;
+		public string Name { get; private set; }
+		public int Defense { get; private set; }
 
 		public Shield(string name, int shield)
 		{
-			_name = name;
-			_shield = shield;
-		}
-
-		public int GetShield()
-		{
-			return _shield;
+			Name = name;
+			Defense = shield;
 		}
 
 		public int GetUnblockedDamage(int damage)
 		{
-			return Math.Max(0, damage - GetShield());
-		}
-
-		public void UpgradeShield()
-		{
-			_shield++;
+			return Math.Max(0, damage - Defense);
 		}
 
 		public string GetStats()
 		{
-			return this + ".\nDefense: " + _shield + ".";
+			return $"{this}.\nDefense: {Defense}.";
 		}
 
 		public override string ToString()
 		{
-			return _name;
+			return Name;
 		}
 	}
 

@@ -3,39 +3,23 @@
 	
 	class Weapon
 	{
-		private string _name;
-		private readonly int _damage;
-		private readonly float _accuracy;
+		public string Name { get; private set; }
+		public int Damage { get; private set; }
 
-		public Weapon(string name, int damage, float accuracy)
+		public Weapon(string name, int damage)
 		{
-			_name = name;
-			_damage = damage;
-			_accuracy = accuracy;
-		}
-
-		public string Attack(Unit enemy)
-		{
-			if (AttemptHit())
-				return enemy.TakeDamage(_damage);
-			return "missed";
-		}
-
-		private bool AttemptHit()
-		{
-			// True for hit
-			// False for miss
-			return Random.Shared.NextDouble() <= _accuracy;
+			Name = name;
+			Damage = damage;
 		}
 
 		public string GetStats()
 		{
-			return this + ".\nAttack: " + _damage + ".\nAccuracy: " + _accuracy + "%.";
+			return $"{this}.\nDamage:{Damage}.";
 		}
 
 		public override string ToString()
 		{
-			return _name;
+			return Name;
 		}
 	}
 
