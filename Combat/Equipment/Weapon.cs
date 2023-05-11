@@ -1,4 +1,4 @@
-﻿namespace Combat
+﻿namespace Combat.Equipment
 {
 	
 	class Weapon
