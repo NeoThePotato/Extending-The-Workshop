@@ -30,25 +30,54 @@
 				CurrentHP = Math.Max(0, Math.Min(value, MaxHP));
 			}
 		}
-		public bool Dead { get => CurrentHP == 0; }
+		public int Strength {
+			get
+			{
+				return Strength;
+			}
+			
+			private set
+			{
+				Strength = Math.Max(0, value);
+			}
+		}
+		public bool Blocking { get; set; }
+		public bool Dead
+		{
+			get => CurrentHP == 0;
+		}
+		private int EffectiveAttack
+		{
+			get => Strength + _weapon.Damage;
+		}
+		private int EffectiveDefense
+		{
+			get => _bodyArmor.Defense + (Blocking ? _shield.Defense : 0);
+		}
 
 		// Equipment
 		private Weapon _weapon;
-		private Shield _shield;
+		private Armor _shield;
+		private Armor _bodyArmor;
 
-		public Unit(string name, int HP, Weapon weapon, Shield shield)
+		public Unit(string name, int HP, Weapon weapon, Armor shield, Armor armor)
 		{
 			Name = name;
 			MaxHP = HP;
 			CurrentHP = MaxHP;
 			_weapon = weapon;
 			_shield = shield;
+			_bodyArmor = armor;
+		}
+
+		public void AttackOther(Unit attackedUnit)
+		{
+			attackedUnit.TakeDamage(EffectiveAttack);
 		}
 
 		public void TakeDamage(int damage)
 		{
-			int unblockedDamage = _shield.GetUnblockedDamage(damage);
-			CurrentHP -= unblockedDamage;
+			CurrentHP -= GetUnblockedDamage(damage);
 		}
 
 		public void Heal(int heal)
@@ -56,19 +85,19 @@
 			CurrentHP += heal;
 		}
 
-		public void Attack(Unit enemy)
-		{
-			enemy.TakeDamage(_weapon.Damage);
-		}
-
 		public string GetStats()
 		{
-			return $"{this}\nHP: {CurrentHP}/{MaxHP}.\nWeapon: {_weapon.GetStats()}\nShield: {_shield.GetStats()}";
+			return $"{this}\nHP: {CurrentHP}/{MaxHP}.\nWeapon: {_weapon.GetStats()}\nShield: {_shield.GetStats()}\nBody Armor: {_bodyArmor.GetStats()}";
 		}
 
 		public override string ToString()
 		{
 			return Name;
+		}
+
+		private int GetUnblockedDamage(int damage)
+		{
+			return Math.Max(1, damage - EffectiveDefense);
 		}
 
 	}
