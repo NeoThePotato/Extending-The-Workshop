@@ -118,7 +118,7 @@ namespace Combat
 
         public string GetStats()
         {
-            return $"{this}\nHP: {CurrentHP}/{MaxHP}.\nWeapon: {Weapon.GetStats()}\nShield: {Shield.GetStats()}\nBody Armor: {BodyArmor.GetStats()}";
+            return $"{this}\nHP: {CurrentHP}/{MaxHP}\nWeapon: {Weapon.GetStats()}\nShield: {Shield.GetStats()}\nBody Armor: {BodyArmor.GetStats()}";
         }
 
         public override string ToString()
