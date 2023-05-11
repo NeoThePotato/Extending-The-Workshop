@@ -75,9 +75,9 @@ namespace Combat
             _bodyArmor = armor;
         }
 
-        public void AttackOther(Unit attackedUnit)
+        public void AttackOther(Unit other)
         {
-            attackedUnit.TakeDamage(EffectiveAttack);
+            other.TakeDamage(EffectiveAttack);
         }
 
         public void TakeDamage(int damage)
