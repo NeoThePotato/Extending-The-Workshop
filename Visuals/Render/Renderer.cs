@@ -14,19 +14,22 @@ namespace Visuals.Render
 			set => _bufferCache = value;
 		}
 		private Element[] Elements { get; set; }
+		private int CurrentElementCount { get; set; }
 
-		private int SizeI { get => BufferCache.GetLength(1); }
-		private int SizeJ { get => BufferCache.GetLength(0); }
+		private int SizeI { get => GetSizeI(BufferCache); }
+		private int SizeJ { get => GetSizeJ(BufferCache); }
 
 		public Renderer(int elementsCount, int dimI, int dimJ)
 		{
 			BufferCache = new char[dimJ, dimI];
 			Elements = new Element[elementsCount];
+			CurrentElementCount = 0;
 		}
 
 		public void AddElement(Element element)
 		{
-			Elements[0] = element; // TODO Remember this is a test
+			Elements[CurrentElementCount] = element;
+			CurrentElementCount++;
 		}
 
 		public void Render()
@@ -44,6 +47,7 @@ namespace Visuals.Render
 				}
 				sb.Append('\n');
 			}
+			Console.Clear();
 			Console.SetCursorPosition(0, 0);
 			Console.Write(sb);
 		}
@@ -71,6 +75,16 @@ namespace Visuals.Render
 				if (element.enabled)
 					CopyFrom(element);
 			}
+		}
+
+		public static int GetSizeI(char[,] arr)
+		{
+			return arr.GetLength(1);
+		}
+
+		public static int GetSizeJ(char[,] arr)
+		{
+			return arr.GetLength(0);
 		}
 	}
 
