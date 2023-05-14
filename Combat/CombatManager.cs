@@ -1,34 +1,15 @@
-﻿using Combat.Equipment;
-using System.Text;
-
-namespace Combat
+﻿namespace Combat
 {
 	class CombatManager
 	{
 
-		public const int GRID_SIZE = 3;
+		Unit PlayerUnit;
+		Unit CPUUnit;
 
-		Unit[] PlayerUnits;
-		Unit[] CPUUnits;
-		Grid PlayerGrid { get; set; }
-		Grid CPUGrid { get; set; }
-
-		public CombatManager(Unit[] playerUnits, Unit[] cpuUnits)
+		public CombatManager(Unit playerUnit, Unit cpuUnit)
 		{
-			PlayerUnits = playerUnits;
-			CPUUnits = cpuUnits;
-			PlayerGrid = new Grid(GRID_SIZE);
-			CPUGrid = new Grid(GRID_SIZE);
-
-			foreach (Unit unit in PlayerUnits)
-			{
-				PlayerGrid.AddUnit(unit);
-			}
-
-			foreach (Unit unit in CPUUnits)
-			{
-				CPUGrid.AddUnit(unit);
-			}
+			PlayerUnit = playerUnit;
+			CPUUnit = cpuUnit;
 		}
 
 		public void CombatLoop()
@@ -37,40 +18,43 @@ namespace Combat
 			while (true) // TODO Implement
 			{
 				// Player turn
-				foreach (Unit unit in PlayerUnits)
-					PlayerUnitAct(unit);
+				PlayerUnitAct();
 
-				if (AllDead(CPUUnits))
+				if (CPUUnit.Dead)
 					break;
 
 				// CPU turn
-				foreach (Unit unit in CPUUnits)
-					CPUUnitAct(unit);
+				CPUUnitAct();
 
-				if (AllDead(PlayerUnits))
+				if (PlayerUnit.Dead)
 					break;
 			}
 		}
 
-		private void PlayerUnitAct(Unit unit)
+		private void PlayerUnitAct()
 		{
-			unit.Blocking = false;
-			Console.WriteLine($"{unit} is acting.");
-			Console.WriteLine($"What will {unit} do?");
+			PlayerUnit.Blocking = false;
+			Console.WriteLine(
+				$"What will {PlayerUnit} do?\n"
+				);
 
 		}
 
-		private void CPUUnitAct(Unit unit)
+		private void CPUUnitAct()
 		{
-			if (unit.Dead)
+			if (CPUUnit.Dead)
 			{
 				return;
 			}
 			else
 			{
-				Unit attackedPlayerUnit = PickRandomUnit(PlayerUnits);
-				AttackUnit(unit, attackedPlayerUnit);
+				AttackUnit(CPUUnit, PlayerUnit);
 			}
+		}
+
+		private void PrintPlayerOptions()
+		{
+
 		}
 
 		private void AttackUnit(Unit attacker, Unit attacked)
@@ -78,34 +62,6 @@ namespace Combat
 			int previousHP = attacked.CurrentHP;
 			attacker.AttackOther(attacked);
 			Console.WriteLine($"{attacker} attacked {attacked} and dealt {previousHP - attacked.CurrentHP} damage.");
-		}
-
-		private static (int, int) GetMyPosition(Unit unit, Grid grid)
-		{
-			throw new NotImplementedException();
-		}
-
-		private static Unit[] GetTargetableUnits(Unit unit)
-		{
-			throw new NotImplementedException();
-		}
-
-		private static bool AllDead(Unit[] units)
-		{
-			foreach (Unit unit in units)
-			{
-				if (!unit.Dead)
-				{
-					return false;
-				}
-			}
-
-			return true;
-		}
-
-		private static Unit PickRandomUnit(Unit[] units)
-		{
-			return units[Random.Shared.Next(0, units.Length)];
 		}
 
 	}
