@@ -6,11 +6,15 @@ namespace Combat
 
     class Unit
     {
-		// Stats
+		// Permanent Stats
         private string _name;
 		private int _maxHP;
-        private int _currentHP;
         private int _strength;
+        private float _evasion;
+		// Temporary Stats
+		private int _currentHP;
+		private float _healingPower;
+        private bool _blocking;
 		// Equipment
 		private Weapon? _equippedWeapon;
 		private Armor? _equippedShield;
@@ -33,18 +37,6 @@ namespace Combat
                 CurrentHP += increaseCurrentHP;
             }
         }
-        public int CurrentHP
-        {
-            get
-            {
-                return _currentHP;
-            }
-
-            private set
-            {
-				_currentHP = Math.Max(0, Math.Min(value, MaxHP));
-            }
-        }
         public int Strength
         {
             get
@@ -57,10 +49,32 @@ namespace Combat
 				_strength = Math.Max(0, value);
             }
         }
-        public bool Blocking
+        public float Evasion
+		{
+			get => _evasion;
+			set => _evasion = value;
+		}
+		public int CurrentHP
+		{
+			get
+			{
+				return _currentHP;
+			}
+
+			private set
+			{
+				_currentHP = Math.Max(0, Math.Min(value, MaxHP));
+			}
+		}
+		public float HealingPower
         {
-            get;
-            set;
+            get => _healingPower;
+            set => _healingPower = value;
+        }
+		public bool Blocking
+        {
+            get => _blocking;
+            set => _blocking = value;
         }
         public bool Dead
         {
@@ -73,6 +87,10 @@ namespace Combat
         private int EffectiveDefense
         {
             get => BodyArmor.Defense + (Blocking ? Shield.Defense : 0);
+        }
+        private int EffectiveHealPower
+        {
+            get => (int)(HealingPower * MaxHP);
         }
         public Weapon Weapon
         {
@@ -90,15 +108,16 @@ namespace Combat
 			set => _equippedBodyArmor = value;
 		}
 
-		public Unit(string name, int HP, int strength, Weapon weapon, Armor shield, Armor bodyArmor)
+		public Unit(string name, int HP, int strength, float evasion, Weapon weapon, Armor shield, Armor bodyArmor)
         {
             Name = name;
             MaxHP = HP;
-            CurrentHP = MaxHP;
             Strength = strength;
+            Evasion = evasion;
             Weapon = weapon;
             Shield = shield;
             BodyArmor = bodyArmor;
+            ResetTempStats();
         }
 
         public void AttackOther(Unit other)
@@ -109,24 +128,38 @@ namespace Combat
         public void TakeDamage(int damage)
         {
             CurrentHP -= GetUnblockedDamage(damage);
+            Blocking = false;
         }
 
-        public void Heal(int heal)
+        public void HealSelf()
         {
-            CurrentHP += heal;
+            HealBy(EffectiveHealPower);
+            HealingPower *= 0.5f;
         }
 
         public string GetStats()
         {
-            return $"{this}\nHP: {CurrentHP}/{MaxHP}\nStrength: {Strength}\nWeapon: {Weapon.GetStats()}\nShield: {Shield.GetStats()}\nBody Armor: {BodyArmor.GetStats()}";
+            return $"{this}\nHP: {CurrentHP}/{MaxHP}\nStrength: {Strength}\nEvasion: {Evasion}\nWeapon: {Weapon.GetStats()}\nShield: {Shield.GetStats()}\nBody Armor: {BodyArmor.GetStats()}";
         }
 
         public override string ToString()
         {
             return Name;
+		}
+
+		private void HealBy(int heal)
+		{
+			CurrentHP += heal;
+		}
+
+        private void ResetTempStats()
+        {
+            CurrentHP = MaxHP;
+            HealingPower = 1f;
+            Blocking = false;
         }
 
-        private int GetUnblockedDamage(int damage)
+		private int GetUnblockedDamage(int damage)
         {
             return Math.Max(1, damage - EffectiveDefense);
         }
