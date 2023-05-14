@@ -1,4 +1,5 @@
 ﻿using Combat.Equipment;
+using System.Text;
 using Templates;
 
 namespace Combat
@@ -52,7 +53,7 @@ namespace Combat
         public float Evasion
 		{
 			get => _evasion;
-			set => _evasion = value;
+			private set => _evasion = value;
 		}
 		public int CurrentHP
 		{
@@ -69,12 +70,12 @@ namespace Combat
 		public float HealingPower
         {
             get => _healingPower;
-            set => _healingPower = value;
+			private set => _healingPower = value;
         }
 		public bool Blocking
         {
             get => _blocking;
-            set => _blocking = value;
+            private set => _blocking = value;
         }
         public bool Dead
         {
@@ -120,29 +121,63 @@ namespace Combat
             ResetTempStats();
         }
 
-        public void AttackOther(Unit other)
+        public void AttackOther(Unit other, ref CombatFeedback feedback)
         {
-            other.TakeDamage(EffectiveAttack);
+            feedback.actor = this;
+            feedback.other = other;
+            other.TakeDamage(EffectiveAttack, ref feedback);
         }
 
-        public void TakeDamage(int damage)
+        public void HealSelf(ref CombatFeedback feedback)
         {
-            CurrentHP -= GetUnblockedDamage(damage);
-            Blocking = false;
-        }
-
-        public void HealSelf()
-        {
+            int previousHP = CurrentHP;
             HealBy(EffectiveHealPower);
             HealingPower *= 0.5f;
+            feedback.actor = this;
+            feedback.other = this;
+            feedback.type = CombatFeedback.FeedbackType.Heal;
+            feedback.numericAmount = CurrentHP - previousHP;
         }
+
+        public void RaiseShield(ref CombatFeedback feedback)
+		{
+			Blocking = true;
+			feedback.actor = this;
+			feedback.type = CombatFeedback.FeedbackType.Raise;
+		}
 
         public string GetStats()
         {
-            return $"{this}\nHP: {CurrentHP}/{MaxHP}\nStrength: {Strength}\nEvasion: {Evasion}\nWeapon: {Weapon.GetStats()}\nShield: {Shield.GetStats()}\nBody Armor: {BodyArmor.GetStats()}";
-        }
+            return $"{this}" +
+                $"\nHP: {CurrentHP}/{MaxHP}" +
+                $"\nStrength: {Strength}" +
+                $"\nEvasion: {Evasion}" +
+                $"\nWeapon: {Weapon.GetStats()}" +
+                $"\nShield: {Shield.GetStats()}" +
+                $"\nBody Armor: {BodyArmor.GetStats()}" +
+                $"\nHealing Power: {EffectiveHealPower} ({HealingPower*100f}%)";
+		}
 
-        public override string ToString()
+		private void TakeDamage(int damage, ref CombatFeedback feedback)
+		{
+			if (!AttemptDodge())
+			{
+				if (Blocking)
+					feedback.type = CombatFeedback.FeedbackType.Block;
+				else
+					feedback.type = CombatFeedback.FeedbackType.Hit;
+				feedback.numericAmount = GetUnblockedDamage(damage);
+				CurrentHP -= GetUnblockedDamage(damage);
+			}
+			else
+			{
+				feedback.type = CombatFeedback.FeedbackType.Evade;
+				feedback.numericAmount = 0;
+			}
+			Blocking = false;
+		}
+
+		public override string ToString()
         {
             return Name;
 		}
@@ -164,6 +199,42 @@ namespace Combat
             return Math.Max(1, damage - EffectiveDefense);
         }
 
+        private bool AttemptDodge()
+        {
+            return Evasion >= Random.Shared.NextDouble();
+        }
+
     }
+
+    struct CombatFeedback
+    {
+        public Unit actor;
+		public Unit other;
+		public FeedbackType type;
+		public int numericAmount;
+
+        public string ParseFeedback()
+        {
+            StringBuilder sb = new StringBuilder();
+            switch (type)
+            {
+                case FeedbackType.Hit:      return $"{actor} attacked {other} and dealt {numericAmount} damage.";
+				case FeedbackType.Block:    return $"{actor}'s attack was blocked {other} but dealt {numericAmount} damage.";
+				case FeedbackType.Evade:    return $"{actor}'s attack missed {other}.";
+				case FeedbackType.Raise:    return $"{actor} raised their shield.";
+				case FeedbackType.Heal:     return $"{actor} healed for {numericAmount} HP.";
+                default:                    return "";
+			}
+        }
+
+	    public enum FeedbackType
+		    {
+			    Hit,
+			    Block,
+			    Evade,
+                Raise,
+			    Heal,
+		    }
+	}
 
 }
