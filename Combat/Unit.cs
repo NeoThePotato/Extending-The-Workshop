@@ -123,14 +123,16 @@ namespace Combat
 
         public void AttackOther(Unit other, ref CombatFeedback feedback)
         {
-            feedback.actor = this;
+            CheckValidState();
+			feedback.actor = this;
             feedback.other = other;
             other.TakeDamage(EffectiveAttack, ref feedback);
         }
 
         public void HealSelf(ref CombatFeedback feedback)
         {
-            int previousHP = CurrentHP;
+			CheckValidState();
+			int previousHP = CurrentHP;
             HealBy(EffectiveHealPower);
             HealingPower *= 0.5f;
             feedback.actor = this;
@@ -141,6 +143,7 @@ namespace Combat
 
         public void RaiseShield(ref CombatFeedback feedback)
 		{
+			CheckValidState();
 			Blocking = true;
 			feedback.actor = this;
 			feedback.type = CombatFeedback.FeedbackType.Raise;
@@ -156,6 +159,11 @@ namespace Combat
                 $"\nShield: {Shield.GetStats()}" +
                 $"\nBody Armor: {BodyArmor.GetStats()}" +
                 $"\nHealing Power: {EffectiveHealPower} ({HealingPower*100f}%)";
+		}
+
+		public override string ToString()
+		{
+			return Name;
 		}
 
 		private void TakeDamage(int damage, ref CombatFeedback feedback)
@@ -175,11 +183,6 @@ namespace Combat
 				feedback.numericAmount = 0;
 			}
 			Blocking = false;
-		}
-
-		public override string ToString()
-        {
-            return Name;
 		}
 
 		private void HealBy(int heal)
@@ -202,6 +205,12 @@ namespace Combat
         private bool AttemptDodge()
         {
             return Evasion >= Random.Shared.NextDouble();
+        }
+
+        private void CheckValidState()
+        {
+            if (Dead)
+                throw new InvalidOperationException($"{this} is dead and cannot act.");
         }
 
     }
