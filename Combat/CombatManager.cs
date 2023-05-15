@@ -6,62 +6,59 @@
 		Unit PlayerUnit;
 		Unit CPUUnit;
 
+		private bool BothAlive
+		{
+			get => !PlayerUnit.Dead && !CPUUnit.Dead;
+		}
+
 		public CombatManager(Unit playerUnit, Unit cpuUnit)
 		{
 			PlayerUnit = playerUnit;
 			CPUUnit = cpuUnit;
 		}
 
-		public void CombatLoop()
+		public void CombatLoop(out Unit winner)
 		{
+			CombatFeedback combatFeedback = new CombatFeedback();
 
-			while (true) // TODO Implement
+			Unit actingUnit = PlayerUnit;
+			Unit passiveUnit = CPUUnit;
+			while (BothAlive)
 			{
-				// Player turn
-				PlayerUnitAct();
+				if (actingUnit == PlayerUnit)
+					PlayerUnitAct(ref combatFeedback);
+				else
+					CPUUnitAct(ref combatFeedback);
 
-				if (CPUUnit.Dead)
+				Console.WriteLine(combatFeedback.ParseFeedback());
+
+				if (passiveUnit.Dead)
+				{
+					Console.WriteLine($"{actingUnit} has defeated {passiveUnit}!");
+					winner = actingUnit;
 					break;
-
-				// CPU turn
-				CPUUnitAct();
-
-				if (PlayerUnit.Dead)
-					break;
+				}
 			}
 		}
 
-		private void PlayerUnitAct()
+		private void PlayerUnitAct(ref CombatFeedback feedback)
 		{
-			PlayerUnit.Blocking = false;
 			Console.WriteLine(
-				$"What will {PlayerUnit} do?\n"
-				);
+				$"What will {PlayerUnit} do?\n{PrintPlayerOptions()}");
+				PrintPlayerOptions();
+				// TODO Implement input
 
 		}
 
-		private void CPUUnitAct()
+		private void CPUUnitAct(ref CombatFeedback feedback)
 		{
-			if (CPUUnit.Dead)
-			{
-				return;
-			}
-			else
-			{
-				AttackUnit(CPUUnit, PlayerUnit);
-			}
+			CPUUnit.AttackOther(PlayerUnit, ref feedback);
 		}
 
-		private void PrintPlayerOptions()
+		private string PrintPlayerOptions()
 		{
-
-		}
-
-		private void AttackUnit(Unit attacker, Unit attacked)
-		{
-			int previousHP = attacked.CurrentHP;
-			attacker.AttackOther(attacked);
-			Console.WriteLine($"{attacker} attacked {attacked} and dealt {previousHP - attacked.CurrentHP} damage.");
+			// TODO Implement
+			throw new NotImplementedException();
 		}
 
 	}
