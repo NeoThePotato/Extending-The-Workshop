@@ -166,11 +166,11 @@ namespace Combat
 			return $"{this}" +
 				$"\nHP: {CurrentHP}/{MaxHP}" +
 				$"\nStrength: {Strength}" +
-				$"\nEvasion: {Evasion*100f}%" +
+				$"\nEvasion: {Evasion*100f:0.00}%" +
 				$"\nWeapon: {Weapon.GetStats()}" +
 				$"\nShield: {Shield.GetStats()}" +
 				$"\nBody Armor: {BodyArmor.GetStats()}" +
-				$"\nHealing Power: {EffectiveHealPower} ({HealingPower*100f}%)";
+				$"\nHealing Power: {EffectiveHealPower} ({HealingPower*100f:0.00}%)";
 		}
 
 		public string GetCombatStats()
@@ -179,8 +179,8 @@ namespace Combat
 				$"\nHP: {CurrentHP}/{MaxHP}" +
 				$"\nAttack Power: {EffectiveAttack} ({Strength}+{Weapon.Damage})" +
 				$"\nDefense: {EffectiveDefense} ({BodyArmor.Defense}+{(Blocking? Shield.Defense : 0)})" +
-				$"\nEvasion: {Evasion * 100f}%" +
-				$"\nHealing Power: {EffectiveHealPower} ({HealingPower * 100f}%)";
+				$"\nEvasion: {Evasion * 100f:0.00}%" +
+				$"\nHealing Power: {EffectiveHealPower} ({HealingPower * 100f:0.00}%)";
 		}
 
 		public override string ToString()
