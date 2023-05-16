@@ -180,6 +180,10 @@
 		{
 			get => PlayerDiesIfHit || !CPUDiesIfHit;
 		}
+		private bool CPUShouldBlock
+		{
+			get => !CPUUnit.Blocking;
+		}
 		
 		public CPUAI(Unit cpuUnit, Unit playerUnit)
 		{
@@ -193,8 +197,11 @@
 				return UnitAction.Heal; // Highest priority
 			else if (CPUShouldAttack)
 				return UnitAction.Attack; // Usually happens
-			else
+			else if (CPUShouldBlock)
 				return UnitAction.Defend; // Happens when healing runs out
+			else
+				return UnitAction.Attack; // Desperate efforts
 		}
+	
 	}
 }
