@@ -3,18 +3,18 @@
 	class CombatManager
 	{
 
-		private Unit PlayerUnit;
-		private Unit CPUUnit;
+		private Unit _playerUnit;
+		private Unit _cpuUnit;
 
 		private bool BothAlive
 		{
-			get => !PlayerUnit.Dead && !CPUUnit.Dead;
+			get => !_playerUnit.Dead && !_cpuUnit.Dead;
 		}
 
 		public CombatManager(Unit playerUnit, Unit cpuUnit)
 		{
-			PlayerUnit = playerUnit;
-			CPUUnit = cpuUnit;
+			_playerUnit = playerUnit;
+			_cpuUnit = cpuUnit;
 		}
 
 		public Unit Combat()
@@ -28,16 +28,16 @@
 
 		private void CombatInitiate()
 		{
-			PlayerUnit.ResetTempStats();
-			CPUUnit.ResetTempStats();
-			Console.WriteLine($"{PlayerUnit} has encountered a {CPUUnit}.");
+			_playerUnit.ResetTempStats();
+			_cpuUnit.ResetTempStats();
+			Console.WriteLine($"{_playerUnit} has encountered a {_cpuUnit}.");
 			BlockUntilKeyDown();
 		}
 
 		private void CombatLoop()
 		{
-			Unit actingUnit = PlayerUnit;
-			Unit passiveUnit = CPUUnit;
+			Unit actingUnit = _playerUnit;
+			Unit passiveUnit = _cpuUnit;
 			CombatFeedback combatFeedback = new CombatFeedback();
 
 			// Main combat loop
@@ -46,12 +46,12 @@
 				// Print combat status
 				Console.Clear();
 				Console.WriteLine(
-					$"{PlayerUnit.GetCombatStats()}\n\n" +
-					$"{CPUUnit.GetCombatStats()}\n\n" +
+					$"{_playerUnit.GetCombatStats()}\n\n" +
+					$"{_cpuUnit.GetCombatStats()}\n\n" +
 					$"{actingUnit}'s turn.\n");
 
 				// Action phase
-				UnitAction action = (actingUnit == PlayerUnit) ? GetPlayerAction() : GetCPUAction();
+				UnitAction action = (actingUnit == _playerUnit) ? GetPlayerAction() : GetCPUAction();
 				DoAction(action, actingUnit, passiveUnit, ref combatFeedback);
 
 				// End of action phase
@@ -71,7 +71,7 @@
 		private UnitAction GetPlayerAction()
 		{
 			Console.WriteLine(
-				$"What will {PlayerUnit} do?\n" +
+				$"What will {_playerUnit} do?\n" +
 				$"{GetPlayerOptions()}");
 
 			return GetPlayerInput() switch
@@ -86,7 +86,7 @@
 		private UnitAction GetCPUAction()
 		{
 			Thread.Sleep(300);
-			CPUAI ai = new CPUAI(CPUUnit, PlayerUnit);
+			CPUAI ai = new CPUAI(_cpuUnit, _playerUnit);
 
 			return ai.GetCPUAction();
 		}
@@ -136,7 +136,7 @@
 
 		private Unit GetWinner()
 		{
-			return CPUUnit.Dead ? PlayerUnit : CPUUnit;
+			return _cpuUnit.Dead ? _playerUnit : _cpuUnit;
 		}
 
 	}
