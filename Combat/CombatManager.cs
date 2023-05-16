@@ -30,6 +30,7 @@
 		{
 			_playerUnit.ResetTempStats();
 			_cpuUnit.ResetTempStats();
+			Console.Clear();
 			Console.WriteLine($"{_playerUnit} has encountered a {_cpuUnit}.");
 			Utility.BlockUntilKeyDown();
 		}
