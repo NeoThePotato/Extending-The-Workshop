@@ -1,10 +1,10 @@
-﻿using Combat;
+﻿using Adventure;
 
 class Program
 {
 	static void Main(string[] args)
 	{
-		Unit playerUnit = new Unit();
+		new AdventureManager().Adventure();
 	}
 
 }
