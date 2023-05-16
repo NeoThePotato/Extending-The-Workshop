@@ -3,8 +3,8 @@
 	class CombatManager
 	{
 
-		Unit PlayerUnit;
-		Unit CPUUnit;
+		private Unit PlayerUnit;
+		private Unit CPUUnit;
 
 		private bool BothAlive
 		{
@@ -17,6 +17,14 @@
 			CPUUnit = cpuUnit;
 		}
 
+		public void CombatInitiate()
+		{
+			PlayerUnit.ResetTempStats();
+			CPUUnit.ResetTempStats();
+			Console.WriteLine($"{PlayerUnit} has encountered a {CPUUnit}.");
+			BlockUntilKeyDown();
+		}
+
 		public Unit CombatLoop()
 		{
 			Unit actingUnit = PlayerUnit;
@@ -25,12 +33,20 @@
 
 			while (BothAlive)
 			{
+				Console.Clear();
+				Console.WriteLine(
+					$"{PlayerUnit.GetCombatStats()}\n\n" +
+					$"{CPUUnit.GetCombatStats()}\n\n" +
+					$"{actingUnit}'s turn.\n");
+
 				if (actingUnit == PlayerUnit)
 					PlayerUnitAct(ref combatFeedback);
 				else
 					CPUUnitAct(ref combatFeedback);
 
 				Console.WriteLine(combatFeedback.ParseFeedback());
+				BlockUntilKeyDown();
+				Utility.Swap(ref actingUnit, ref passiveUnit);
 			}
 
 			Unit winner = GetWinner();
@@ -42,21 +58,49 @@
 		private void PlayerUnitAct(ref CombatFeedback feedback)
 		{
 			Console.WriteLine(
-				$"What will {PlayerUnit} do?\n{PrintPlayerOptions()}");
-				PrintPlayerOptions();
-				// TODO Implement input
+				$"What will {PlayerUnit} do?\n" +
+				$"{GetPlayerOptions()}");
+
+			switch (GetPlayerInput())
+			{
+				case 1:
+					PlayerUnit.AttackOther(CPUUnit, ref feedback);
+					break;
+				case 2:
+					PlayerUnit.RaiseShield(ref feedback);
+					break;
+				case 3:
+					PlayerUnit.HealSelf(ref feedback);
+					break;
+			}
 
 		}
 
 		private void CPUUnitAct(ref CombatFeedback feedback)
 		{
+			Thread.Sleep(300);
 			CPUUnit.AttackOther(PlayerUnit, ref feedback);
 		}
 
-		private string PrintPlayerOptions()
+		private void BlockUntilKeyDown()
 		{
-			// TODO Implement
-			throw new NotImplementedException();
+			Console.ReadKey();
+		}
+
+		private string GetPlayerOptions()
+		{
+			return	("1: Attack\n" +
+					"2: Defend\n" +
+					"3: Heal");
+		}
+
+		private int GetPlayerInput()
+		{
+			int input = 0;
+			while(1 > input || input > 3)
+				while (!int.TryParse(Console.ReadLine(), out input));
+
+			return input;
 		}
 
 		private Unit GetWinner()
