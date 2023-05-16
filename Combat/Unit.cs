@@ -35,54 +35,40 @@ namespace Combat
 			private set
 			{
 				int modifyMaxHP = value - _maxHP;
-				int increaseCurrentHP = Math.Max(0, modifyMaxHP);
+				int increaseCurrentHP = Utility.ClampMin(modifyMaxHP, 0);
 				_maxHP += modifyMaxHP;
 				CurrentHP += increaseCurrentHP;
 			}
 		}
 		public int Strength
 		{
-			get
-			{
-				return _strength;
-			}
-
-			private set
-			{
-				_strength = Math.Max(0, value);
-			}
+			get => _strength;
+			private set => _strength = Utility.ClampMin(value, 0);
 		}
 		public float Evasion
 		{
 			get => _evasion;
-			private set => _evasion = value;
+			private set => _evasion = Utility.ClampRange(value, 0f, 1f);
 		}
 		public int CurrentHP
 		{
-			get
-			{
-				return _currentHP;
-			}
-
-			private set
-			{
-				_currentHP = Math.Max(0, Math.Min(value, MaxHP));
-			}
+			get => _currentHP;
+			private set => _currentHP = Utility.ClampRange(value, 0, MaxHP);
 		}
 		public float HealingPower
 		{
 			get => _healingPower;
-			private set => _healingPower = value;
+			private set => _healingPower = Utility.ClampRange(value, 0f, 1f);
 		}
 		public float InitialHealingPower
 		{
 			get => _initialHealingPower;
-			private set => _initialHealingPower = value;
+			private set => _initialHealingPower = Utility.ClampRange(value, 0f, 1f);
 		}
 		public float HealingPowerDecay
 		{
 			get => _healingPowerDecay;
-			private set => _healingPowerDecay = value;
+			private set => _healingPowerDecay = Utility.ClampRange(value, 0f, 1f);
 		}
 		public bool Blocking
 		{
@@ -228,7 +214,7 @@ namespace Combat
 
 		private int GetUnblockedDamage(int damage)
 		{
-			return Math.Max(1, damage - EffectiveDefense);
+			return Utility.ClampMin(damage - EffectiveDefense, 1);
 		}
 
 		private bool AttemptDodge()
