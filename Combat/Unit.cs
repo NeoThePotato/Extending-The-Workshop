@@ -79,15 +79,15 @@ namespace Combat
 		{
 			get => CurrentHP == 0;
 		}
-		private int EffectiveAttack
+		public int EffectiveAttack
 		{
 			get => Strength + Weapon.Damage;
 		}
-		private int EffectiveDefense
+		public int EffectiveDefense
 		{
 			get => BodyArmor.Defense + (Blocking ? Shield.Defense : 0);
 		}
-		private int EffectiveHealPower
+		public int EffectiveHealPower
 		{
 			get => (int)(HealingPower * MaxHP);
 		}

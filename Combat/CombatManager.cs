@@ -166,11 +166,19 @@
 		}
 		private bool CPUCanHeal
 		{
-			get => CPUUnit.HealingPower > 0;
+			get => CPUUnit.EffectiveHealPower > 0;
+		}
+		private bool CPUCanBlock
+		{
+			get => !CPUUnit.Blocking;
 		}
 		private bool CPUCanOutHealFatalAttack
 		{
-			get => CPUCanHeal && (CPUUnit.HealingPower + CPUUnit.CurrentHP > DamageFromPlayer);
+			get => CPUCanHeal && (CPUUnit.CurrentHP + CPUUnit.EffectiveHealPower - DamageFromPlayer > 0);
+		}
+		private bool CPUCanBlockFatalAttack
+		{
+			get => CPUCanBlock && (CPUUnit.CurrentHP + CPUUnit.EffectiveDefense + CPUUnit.Shield.Defense - DamageFromPlayer > 0);
 		}
 		private bool CPUShouldHeal
 		{
@@ -182,7 +190,7 @@
 		}
 		private bool CPUShouldBlock
 		{
-			get => !CPUUnit.Blocking;
+			get => CPUDiesIfHit && CPUCanBlockFatalAttack;
 		}
 		
 		public CPUAI(Unit cpuUnit, Unit playerUnit)
