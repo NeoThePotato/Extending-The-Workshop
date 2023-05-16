@@ -44,27 +44,27 @@
 
 	public static void PrintAll<T>(T[] objArr, Separator separator)
 	{
-		string seperatorStr;
+		string separatorStr;
 
 		switch (separator)
 		{
-			case Seperator.Comma:
-				seperatorStr = ", ";
+			case Separator.Comma:
+				separatorStr = ", ";
 				break;
-			case Seperator.Space:
-				seperatorStr = " ";
+			case Separator.Space:
+				separatorStr = " ";
 				break;
-			case Seperator.NewLine:
-				seperatorStr = "\n";
+			case Separator.NewLine:
+				separatorStr = "\n";
 				break;
 			default:
-				seperatorStr = ", ";
+				separatorStr = ", ";
 				break;
 		}
 
 		for (int i = 0; i < objArr.Length-1; i++)
 		{
-			Console.Write(objArr[i] + seperatorStr);
+			Console.Write(objArr[i] + separatorStr);
 		}
 
 		Console.WriteLine(objArr[objArr.Length-1]);
