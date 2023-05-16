@@ -149,16 +149,33 @@ namespace Combat
 			feedback.type = CombatFeedback.FeedbackType.Raise;
 		}
 
-        public string GetStats()
+		public void ResetTempStats()
+		{
+			CurrentHP = MaxHP;
+			HealingPower = 1f;
+			Blocking = false;
+		}
+
+		public string GetStats()
         {
             return $"{this}" +
                 $"\nHP: {CurrentHP}/{MaxHP}" +
                 $"\nStrength: {Strength}" +
-                $"\nEvasion: {Evasion}" +
+                $"\nEvasion: {Evasion*100f}%" +
                 $"\nWeapon: {Weapon.GetStats()}" +
                 $"\nShield: {Shield.GetStats()}" +
                 $"\nBody Armor: {BodyArmor.GetStats()}" +
                 $"\nHealing Power: {EffectiveHealPower} ({HealingPower*100f}%)";
+		}
+
+        public string GetCombatStats()
+        {
+			return $"{this}" +
+				$"\nHP: {CurrentHP}/{MaxHP}" +
+				$"\nAttack Power: {EffectiveAttack} ({Strength}+{Weapon.Damage})" +
+				$"\nDefense: {EffectiveDefense} ({BodyArmor.Defense}+{(Blocking? Shield.Defense : 0)})" +
+				$"\nEvasion: {Evasion * 100f}%" +
+				$"\nHealing Power: {EffectiveHealPower} ({HealingPower * 100f}%)";
 		}
 
 		public override string ToString()
@@ -189,13 +206,6 @@ namespace Combat
 		{
 			CurrentHP += heal;
 		}
-
-        private void ResetTempStats()
-        {
-            CurrentHP = MaxHP;
-            HealingPower = 1f;
-            Blocking = false;
-        }
 
 		private int GetUnblockedDamage(int damage)
         {
