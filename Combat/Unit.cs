@@ -8,12 +8,12 @@ namespace Combat
 	class Unit
 	{
 		// Permanent Stats
-		private string _name;
-		private int _maxHP;
-		private int _strength;
-		private float _evasion;
-		private float _initialHealingPower;
-		private float _healingPowerDecay;
+		private string _name = "";
+		private int _maxHP = 1;
+		private int _strength = 0;
+		private float _evasion = 0f;
+		private float _initialHealingPower = 0f;
+		private float _healingPowerDecay = 0f;
 		// Temporary Stats
 		private int _currentHP;
 		private float _healingPower;
@@ -34,10 +34,10 @@ namespace Combat
 
 			private set
 			{
-				int modifyMaxHP = value - _maxHP;
-				int increaseCurrentHP = Utility.ClampMin(modifyMaxHP, 0);
-				_maxHP += modifyMaxHP;
-				CurrentHP += increaseCurrentHP;
+				int modifyHP = value - _maxHP;
+				_maxHP += modifyHP;
+				_maxHP = Utility.ClampMin(MaxHP, 1);
+				CurrentHP += modifyHP;
 			}
 		}
 		public int Strength
@@ -118,6 +118,20 @@ namespace Combat
 			Weapon = weapon;
 			Shield = shield;
 			BodyArmor = bodyArmor;
+			ResetTempStats();
+		}
+
+		public Unit(Unit other)
+		{
+			Name = other.Name;
+			MaxHP = other.MaxHP;
+			Strength = other.Strength;
+			Evasion = other.Evasion;
+			InitialHealingPower = other.InitialHealingPower;
+			HealingPowerDecay = other.HealingPowerDecay;
+			Weapon = other.Weapon;
+			Shield = other.Shield;
+			BodyArmor = other.BodyArmor;
 			ResetTempStats();
 		}
 
