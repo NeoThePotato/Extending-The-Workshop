@@ -193,13 +193,13 @@ namespace Combat
 					feedback.type = CombatFeedback.FeedbackType.Hit;
 				feedback.numericAmount = GetUnblockedDamage(damage);
 				CurrentHP -= GetUnblockedDamage(damage);
+				Blocking = false;
 			}
 			else
 			{
 				feedback.type = CombatFeedback.FeedbackType.Evade;
 				feedback.numericAmount = 0;
 			}
-			Blocking = false;
 		}
 
 		private void HealBy(int heal)
