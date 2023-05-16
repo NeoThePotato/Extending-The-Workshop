@@ -40,7 +40,7 @@ namespace Adventure
 			// Some would call this the "Core gameplay loop" :)
 			while (FindEncounter())
 			{
-				// TODO Give reward
+				// TODO Used RewardsMerchant here
 			}
 		}
 
