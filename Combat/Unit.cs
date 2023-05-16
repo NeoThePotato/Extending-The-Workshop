@@ -228,7 +228,7 @@ namespace Combat
             switch (type)
             {
                 case FeedbackType.Hit:      return $"{actor} attacked {other} and dealt {numericAmount} damage.";
-				case FeedbackType.Block:    return $"{actor}'s attack was blocked {other} but dealt {numericAmount} damage.";
+				case FeedbackType.Block:    return $"{actor}'s attack was blocked but dealt {numericAmount} damage to {other}.";
 				case FeedbackType.Evade:    return $"{actor}'s attack missed {other}.";
 				case FeedbackType.Raise:    return $"{actor} raised their shield.";
 				case FeedbackType.Heal:     return $"{actor} healed for {numericAmount} HP.";
