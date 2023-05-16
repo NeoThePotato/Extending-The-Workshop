@@ -116,7 +116,7 @@
 
 		private int GetPlayerInput()
 		{
-			int input = 0;
+			int input;
 			while (true)
 			{
 				if (!int.TryParse(Console.ReadLine(), out input) || 1 > input || input > 3)
