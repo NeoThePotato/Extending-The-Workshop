@@ -17,12 +17,12 @@
 			CPUUnit = cpuUnit;
 		}
 
-		public void CombatLoop(out Unit winner)
+		public Unit CombatLoop()
 		{
-			CombatFeedback combatFeedback = new CombatFeedback();
-
 			Unit actingUnit = PlayerUnit;
 			Unit passiveUnit = CPUUnit;
+			CombatFeedback combatFeedback = new CombatFeedback();
+
 			while (BothAlive)
 			{
 				if (actingUnit == PlayerUnit)
@@ -31,14 +31,12 @@
 					CPUUnitAct(ref combatFeedback);
 
 				Console.WriteLine(combatFeedback.ParseFeedback());
-
-				if (passiveUnit.Dead)
-				{
-					Console.WriteLine($"{actingUnit} has defeated {passiveUnit}!");
-					winner = actingUnit;
-					break;
-				}
 			}
+
+			Unit winner = GetWinner();
+			Console.WriteLine($"{winner} wins!");
+
+			return winner;
 		}
 
 		private void PlayerUnitAct(ref CombatFeedback feedback)
@@ -59,6 +57,11 @@
 		{
 			// TODO Implement
 			throw new NotImplementedException();
+		}
+
+		private Unit GetWinner()
+		{
+			return CPUUnit.Dead ? PlayerUnit : CPUUnit;
 		}
 
 	}
