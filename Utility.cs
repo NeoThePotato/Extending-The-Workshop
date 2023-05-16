@@ -7,16 +7,46 @@
 		obj2 = temp;
 	}
 
+	public static float ClampMin(float val, float min)
+	{
+		return Math.Max(val, min);
+	}
+
+	public static float ClampMax(float val, float max)
+	{
+		return Math.Min(val, max);
+	}
+
+	public static float ClampRange(float val, float min, float max)
+	{
+		return ClampMin(ClampMax(val, max), min);
+	}
+
+	public static int ClampMin(int val, int min)
+	{
+		return Math.Max(val, min);
+	}
+
+	public static int ClampMax(int val, int max)
+	{
+		return Math.Min(val, max);
+	}
+
+	public static int ClampRange(int val, int min, int max)
+	{
+		return ClampMin(ClampMax(val, max), min);
+	}
+
 	public static T[] RemoveDuplicates<T>(T[] objArr)
 	{
 		return objArr.Distinct().ToArray();
 	}
 
-	public static void PrintAll<T>(T[] objArr, Seperator seperator)
+	public static void PrintAll<T>(T[] objArr, Separator separator)
 	{
 		string seperatorStr;
 
-		switch (seperator)
+		switch (separator)
 		{
 			case Seperator.Comma:
 				seperatorStr = ", ";
@@ -40,7 +70,7 @@
 		Console.WriteLine(objArr[objArr.Length-1]);
 	}
 }
-enum Seperator
+enum Separator
 {
 	Comma,
 	Space,
