@@ -149,6 +149,11 @@ namespace Combat
 			feedback.type = CombatFeedback.FeedbackType.Raise;
 		}
 
+		public int CalculateTotalDamageFrom(Unit attacker)
+		{
+			return GetUnblockedDamage(attacker.EffectiveAttack);
+		}
+
 		public void ResetTempStats()
 		{
 			CurrentHP = MaxHP;
@@ -191,8 +196,9 @@ namespace Combat
 					feedback.type = CombatFeedback.FeedbackType.Block;
 				else
 					feedback.type = CombatFeedback.FeedbackType.Hit;
-				feedback.numericAmount = GetUnblockedDamage(damage);
-				CurrentHP -= GetUnblockedDamage(damage);
+				int finalDamage = GetUnblockedDamage(damage);
+				feedback.numericAmount = finalDamage;
+				CurrentHP -= finalDamage;
 				Blocking = false;
 			}
 			else
@@ -230,6 +236,13 @@ namespace Combat
 
 	}
 
+	enum UnitAction
+	{
+		Attack,
+		Defend,
+		Heal
+	}
+
 	struct CombatFeedback
 	{
 		public Unit actor;
@@ -257,7 +270,7 @@ namespace Combat
 				Block,
 				Evade,
 				Raise,
-				Heal,
+				Heal
 			}
 	}
 
