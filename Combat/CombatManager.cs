@@ -31,7 +31,7 @@
 			_playerUnit.ResetTempStats();
 			_cpuUnit.ResetTempStats();
 			Console.WriteLine($"{_playerUnit} has encountered a {_cpuUnit}.");
-			BlockUntilKeyDown();
+			Utility.BlockUntilKeyDown();
 		}
 
 		private void CombatLoop()
@@ -56,7 +56,7 @@
 
 				// End of action phase
 				Console.WriteLine(combatFeedback.ParseFeedback());
-				BlockUntilKeyDown();
+				Utility.BlockUntilKeyDown();
 
 				// Prepare for next turn
 				Utility.Swap(ref actingUnit, ref passiveUnit);
@@ -105,11 +105,6 @@
 					actingUnit.HealSelf(ref feedback);
 					break;
 			}
-		}
-
-		private void BlockUntilKeyDown()
-		{
-			Console.ReadKey();
 		}
 
 		private string GetPlayerOptions()

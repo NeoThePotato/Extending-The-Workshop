@@ -37,6 +37,11 @@
 		return ClampMin(ClampMax(val, max), min);
 	}
 
+	public static void BlockUntilKeyDown()
+	{
+		Console.ReadKey();
+	}
+
 	public static T[] RemoveDuplicates<T>(T[] objArr)
 	{
 		return objArr.Distinct().ToArray();
