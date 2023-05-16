@@ -5,52 +5,54 @@ using Templates;
 namespace Combat
 {
 
-    class Unit
-    {
+	class Unit
+	{
 		// Permanent Stats
-        private string _name;
+		private string _name;
 		private int _maxHP;
-        private int _strength;
-        private float _evasion;
+		private int _strength;
+		private float _evasion;
+		private float _initialHealingPower;
+		private float _healingPowerDecay;
 		// Temporary Stats
 		private int _currentHP;
 		private float _healingPower;
-        private bool _blocking;
+		private bool _blocking;
 		// Equipment
 		private Weapon? _equippedWeapon;
 		private Armor? _equippedShield;
 		private Armor? _equippedBodyArmor;
 
 		public string Name
-        {
-            get => _name;
-            private set => _name = value;
-        }
-        public int MaxHP
-        {
-            get => _maxHP;
+		{
+			get => _name;
+			private set => _name = value;
+		}
+		public int MaxHP
+		{
+			get => _maxHP;
 
-            private set
-            {
-                int modifyMaxHP = value - _maxHP;
-                int increaseCurrentHP = Math.Max(0, modifyMaxHP);
+			private set
+			{
+				int modifyMaxHP = value - _maxHP;
+				int increaseCurrentHP = Math.Max(0, modifyMaxHP);
 				_maxHP += modifyMaxHP;
-                CurrentHP += increaseCurrentHP;
-            }
-        }
-        public int Strength
-        {
-            get
-            {
-                return _strength;
-            }
+				CurrentHP += increaseCurrentHP;
+			}
+		}
+		public int Strength
+		{
+			get
+			{
+				return _strength;
+			}
 
-            private set
-            {
+			private set
+			{
 				_strength = Math.Max(0, value);
-            }
-        }
-        public float Evasion
+			}
+		}
+		public float Evasion
 		{
 			get => _evasion;
 			private set => _evasion = value;
@@ -68,80 +70,92 @@ namespace Combat
 			}
 		}
 		public float HealingPower
-        {
-            get => _healingPower;
+		{
+			get => _healingPower;
 			private set => _healingPower = value;
-        }
+		}
+		public float InitialHealingPower
+		{
+			get => _initialHealingPower;
+			private set => _initialHealingPower = value;
+		}
+		public float HealingPowerDecay
+		{
+			get => _healingPowerDecay;
+			private set => _healingPowerDecay = value;
+		}
 		public bool Blocking
-        {
-            get => _blocking;
-            private set => _blocking = value;
-        }
-        public bool Dead
-        {
-            get => CurrentHP == 0;
-        }
-        private int EffectiveAttack
-        {
-            get => Strength + Weapon.Damage;
-        }
-        private int EffectiveDefense
-        {
-            get => BodyArmor.Defense + (Blocking ? Shield.Defense : 0);
-        }
-        private int EffectiveHealPower
-        {
-            get => (int)(HealingPower * MaxHP);
-        }
-        public Weapon Weapon
-        {
-            get => _equippedWeapon == null? Templates.Weapons.nothing : _equippedWeapon;
-            set => _equippedWeapon = value;
+		{
+			get => _blocking;
+			private set => _blocking = value;
+		}
+		public bool Dead
+		{
+			get => CurrentHP == 0;
+		}
+		private int EffectiveAttack
+		{
+			get => Strength + Weapon.Damage;
+		}
+		private int EffectiveDefense
+		{
+			get => BodyArmor.Defense + (Blocking ? Shield.Defense : 0);
+		}
+		private int EffectiveHealPower
+		{
+			get => (int)(HealingPower * MaxHP);
+		}
+		public Weapon Weapon
+		{
+			get => _equippedWeapon == null? Weapons.nothing : _equippedWeapon;
+			set => _equippedWeapon = value;
 		}
 		public Armor Shield
 		{
-			get => _equippedShield == null ? Templates.Armors.nothing : _equippedShield;
+			get => _equippedShield == null ? Armors.nothing : _equippedShield;
 			set => _equippedShield = value;
 		}
 		public Armor BodyArmor
 		{
-			get => _equippedBodyArmor == null ? Templates.Armors.nothing : _equippedBodyArmor;
+			get => _equippedBodyArmor == null ? Armors.nothing : _equippedBodyArmor;
 			set => _equippedBodyArmor = value;
 		}
 
-		public Unit(string name, int HP, int strength, float evasion, Weapon weapon, Armor shield, Armor bodyArmor)
-        {
-            Name = name;
-            MaxHP = HP;
-            Strength = strength;
-            Evasion = evasion;
-            Weapon = weapon;
-            Shield = shield;
-            BodyArmor = bodyArmor;
-            ResetTempStats();
-        }
+		public Unit(string name, int HP, int strength, float evasion, float initialHealingPower, float healingPowerDecay, Weapon weapon, Armor shield, Armor bodyArmor)
+		{
+			Name = name;
+			MaxHP = HP;
+			Strength = strength;
+			Evasion = evasion;
+			InitialHealingPower = initialHealingPower;
+			HealingPowerDecay = healingPowerDecay;
+			Weapon = weapon;
+			Shield = shield;
+			BodyArmor = bodyArmor;
+			ResetTempStats();
+		}
 
-        public void AttackOther(Unit other, ref CombatFeedback feedback)
-        {
-            CheckValidState();
+		public void AttackOther(Unit other, ref CombatFeedback feedback)
+		{
+			CheckValidState();
 			feedback.actor = this;
-            feedback.other = other;
-            other.TakeDamage(EffectiveAttack, ref feedback);
-        }
+			feedback.other = other;
+			other.TakeDamage(EffectiveAttack, ref feedback);
+		}
 
-        public void HealSelf(ref CombatFeedback feedback)
-        {
+		public void HealSelf(ref CombatFeedback feedback)
+		{
 			CheckValidState();
 			int previousHP = CurrentHP;
-            HealBy(EffectiveHealPower);
-            HealingPower *= 0.5f;
-            feedback.actor = this;
-            feedback.other = this;
-            feedback.type = CombatFeedback.FeedbackType.Heal;
-            feedback.numericAmount = CurrentHP - previousHP;
-        }
+			HealBy(EffectiveHealPower);
+			ReduceHealingPower();
+			feedback.actor = this;
+			feedback.other = this;
+			feedback.type = CombatFeedback.FeedbackType.Heal;
+			feedback.numericAmount = CurrentHP - previousHP;
+		}
 
-        public void RaiseShield(ref CombatFeedback feedback)
+		public void RaiseShield(ref CombatFeedback feedback)
 		{
 			CheckValidState();
 			Blocking = true;
@@ -152,24 +166,24 @@ namespace Combat
 		public void ResetTempStats()
 		{
 			CurrentHP = MaxHP;
-			HealingPower = 1f;
+			HealingPower = InitialHealingPower;
 			Blocking = false;
 		}
 
 		public string GetStats()
-        {
-            return $"{this}" +
-                $"\nHP: {CurrentHP}/{MaxHP}" +
-                $"\nStrength: {Strength}" +
-                $"\nEvasion: {Evasion*100f}%" +
-                $"\nWeapon: {Weapon.GetStats()}" +
-                $"\nShield: {Shield.GetStats()}" +
-                $"\nBody Armor: {BodyArmor.GetStats()}" +
-                $"\nHealing Power: {EffectiveHealPower} ({HealingPower*100f}%)";
+		{
+			return $"{this}" +
+				$"\nHP: {CurrentHP}/{MaxHP}" +
+				$"\nStrength: {Strength}" +
+				$"\nEvasion: {Evasion*100f}%" +
+				$"\nWeapon: {Weapon.GetStats()}" +
+				$"\nShield: {Shield.GetStats()}" +
+				$"\nBody Armor: {BodyArmor.GetStats()}" +
+				$"\nHealing Power: {EffectiveHealPower} ({HealingPower*100f}%)";
 		}
 
-        public string GetCombatStats()
-        {
+		public string GetCombatStats()
+		{
 			return $"{this}" +
 				$"\nHP: {CurrentHP}/{MaxHP}" +
 				$"\nAttack Power: {EffectiveAttack} ({Strength}+{Weapon.Damage})" +
@@ -207,53 +221,58 @@ namespace Combat
 			CurrentHP += heal;
 		}
 
+		private void ReduceHealingPower()
+		{
+			HealingPower *= 1f - HealingPowerDecay;
+		}
+
 		private int GetUnblockedDamage(int damage)
-        {
-            return Math.Max(1, damage - EffectiveDefense);
-        }
+		{
+			return Math.Max(1, damage - EffectiveDefense);
+		}
 
-        private bool AttemptDodge()
-        {
-            return Evasion >= Random.Shared.NextDouble();
-        }
+		private bool AttemptDodge()
+		{
+			return Evasion >= Random.Shared.NextDouble();
+		}
 
-        private void CheckValidState()
-        {
-            if (Dead)
-                throw new InvalidOperationException($"{this} is dead and cannot act.");
-        }
+		private void CheckValidState()
+		{
+			if (Dead)
+				throw new InvalidOperationException($"{this} is dead and cannot act.");
+		}
 
-    }
+	}
 
-    struct CombatFeedback
-    {
-        public Unit actor;
+	struct CombatFeedback
+	{
+		public Unit actor;
 		public Unit other;
 		public FeedbackType type;
 		public int numericAmount;
 
-        public string ParseFeedback()
-        {
-            StringBuilder sb = new StringBuilder();
-            switch (type)
-            {
-                case FeedbackType.Hit:      return $"{actor} attacked {other} and dealt {numericAmount} damage.";
+		public string ParseFeedback()
+		{
+			StringBuilder sb = new StringBuilder();
+			switch (type)
+			{
+				case FeedbackType.Hit:      return $"{actor} attacked {other} and dealt {numericAmount} damage.";
 				case FeedbackType.Block:    return $"{actor}'s attack was blocked but dealt {numericAmount} damage to {other}.";
 				case FeedbackType.Evade:    return $"{actor}'s attack missed {other}.";
 				case FeedbackType.Raise:    return $"{actor} raised their shield.";
 				case FeedbackType.Heal:     return $"{actor} healed for {numericAmount} HP.";
-                default:                    return "";
+				default:                    return "";
 			}
-        }
+		}
 
-	    public enum FeedbackType
-		    {
-			    Hit,
-			    Block,
-			    Evade,
-                Raise,
-			    Heal,
-		    }
+		public enum FeedbackType
+			{
+				Hit,
+				Block,
+				Evade,
+				Raise,
+				Heal,
+			}
 	}
 
 }
