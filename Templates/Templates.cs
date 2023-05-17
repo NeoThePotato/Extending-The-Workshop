@@ -25,6 +25,7 @@ namespace Templates
 		public static Weapon steelSword = new Weapon("Steel Sword", 2);
 		public static Weapon umbraSword = new Weapon("Umbra Sword", 3);
 		public static Weapon fieryGreatsword = new Weapon("Fiery Greatsword", 5);
+		public static Weapon swordExcalibur = new Weapon("Excalibur", 7);
 		public static Weapon magicWand = new Weapon("Magic Wand", 1);
 		public static Weapon tyrantGauntletsBootleg = new Weapon("Bootleg Tyrant Gauntlets", 4);
 		public static Weapon tyrantGauntlets = new Weapon("Tyrant Gauntlets", 10);
@@ -37,13 +38,16 @@ namespace Templates
 		// Shields
 		public static Armor rustedBuckler = new Armor("Rusted Buckler", 1);
 		public static Armor steelBuckler = new Armor("Steel Buckler", 2);
-		public static Armor towerShield = new Armor("Tower Shield", 2);
+		public static Armor towerShield = new Armor("Tower Shield", 3);
+		public static Armor heroShield = new Armor("Hero Shield", 4);
 
 		// Body Armor
 		public static Armor rustedChestplate = new Armor("Rusted Chestplate", 1);
 		public static Armor tatteredRags = new Armor("Tattered Rags", 1);
 		public static Armor blackRobes = new Armor("Black Robes", 2);
+		public static Armor leatherArmor = new Armor("Leather Armor", 2);
 		public static Armor moltenArmor = new Armor("Molten Armor", 4);
+		public static Armor mithrilChainmail = new Armor("Mithril Chainmail", 5);
 		public static Armor kingSlayerArmor = new Armor("King-Slayer Armor", 6);
 		public static Armor godSlayerArmor = new Armor("God-Slayer Armor", 15);
 	}
