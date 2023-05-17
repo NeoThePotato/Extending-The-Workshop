@@ -10,6 +10,7 @@ namespace Adventure
 
 		private Unit _playerUnit;
 		private Unit[] _enemyPool;
+		private RewardsMerchant _rewardsMerchant;
 		private int EnemiesKilled
 		{ get; set; }
 
@@ -19,6 +20,7 @@ namespace Adventure
 		{
 			_playerUnit = Units.hero;
 			_enemyPool = new Unit[] { Units.slime, Units.fae, Units.annoyingFly, Units.imp, Units.spawnOfTwilight, Units.antiHero, Units.invincibleArchdemon};
+			_rewardsMerchant = new RewardsMerchant(_playerUnit);
 		}
 
 		public void Adventure()
@@ -40,7 +42,7 @@ namespace Adventure
 			// Some would call this the "Core gameplay loop" :)
 			while (FindEncounter())
 			{
-				// TODO Used RewardsMerchant here
+				_rewardsMerchant.UpgradeScreen();
 			}
 		}
 
