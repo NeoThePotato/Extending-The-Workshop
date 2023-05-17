@@ -30,11 +30,13 @@ namespace Adventure
 			PrintIntroduction();
 			PrintAvailableUpgrades();
 			UpgradeUnit();
+			PrintNewStats();
 		}
 
 		private void PrintIntroduction()
 		{
-			Console.WriteLine($"Welcome, {_unit}.\nWhat would you like to upgrade?");
+			Console.Clear();
+			Console.WriteLine($"Current Stats:\n\n{_unit.GetStats()}\n\nWelcome, {_unit}.\nWhat would you like to upgrade?");
 		}
 
 		private void PrintAvailableUpgrades()
@@ -54,6 +56,11 @@ namespace Adventure
 				input = GetPlayerInput();
 			}
 			while (!Upgrade(input));
+		}
+
+		private void PrintNewStats()
+		{
+			Console.WriteLine($"\n{_unit}'s current stats are now:\n\n{_unit.GetStats()}");
 		}
 
 		private bool Upgrade(int input)
