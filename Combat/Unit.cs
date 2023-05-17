@@ -12,11 +12,11 @@ namespace Combat
 		private int _maxHP = 1;
 		private int _strength = 0;
 		private float _evasion = 0f;
-		private float _initialHealingPower = 0f;
+		private float _maxHealingPower = 0f;
 		private float _healingPowerDecay = 0f;
 		// Temporary Stats
 		private int _currentHP;
-		private float _healingPower;
+		private float _currentHealingPower;
 		private bool _blocking;
 		// Equipment
 		private Weapon? _equippedWeapon;
@@ -55,15 +55,15 @@ namespace Combat
 			get => _currentHP;
 			private set => _currentHP = Utility.ClampRange(value, 0, MaxHP);
 		}
-		public float HealingPower
+		public float CurrentHealingPower
 		{
-			get => _healingPower;
-			private set => _healingPower = Utility.ClampRange(value, 0f, 1f);
+			get => _currentHealingPower;
+			private set => _currentHealingPower = Utility.ClampRange(value, 0f, 1f);
 		}
-		public float InitialHealingPower
+		public float MaxHealingPower
 		{
-			get => _initialHealingPower;
-			private set => _initialHealingPower = Utility.ClampRange(value, 0f, 1f);
+			get => _maxHealingPower;
+			private set => _maxHealingPower = Utility.ClampRange(value, 0f, 1f);
 		}
 		public float HealingPowerDecay
 		{
@@ -89,7 +89,7 @@ namespace Combat
 		}
 		public int EffectiveHealPower
 		{
-			get => (int)(HealingPower * MaxHP);
+			get => (int)(CurrentHealingPower * MaxHP);
 		}
 		public Weapon Weapon
 		{
@@ -113,7 +113,7 @@ namespace Combat
 			MaxHP = HP;
 			Strength = strength;
 			Evasion = evasion;
-			InitialHealingPower = initialHealingPower;
+			MaxHealingPower = initialHealingPower;
 			HealingPowerDecay = healingPowerDecay;
 			Weapon = weapon;
 			Shield = shield;
@@ -127,7 +127,7 @@ namespace Combat
 			MaxHP = other.MaxHP;
 			Strength = other.Strength;
 			Evasion = other.Evasion;
-			InitialHealingPower = other.InitialHealingPower;
+			MaxHealingPower = other.MaxHealingPower;
 			HealingPowerDecay = other.HealingPowerDecay;
 			Weapon = other.Weapon;
 			Shield = other.Shield;
@@ -171,8 +171,30 @@ namespace Combat
 		public void ResetTempStats()
 		{
 			CurrentHP = MaxHP;
-			HealingPower = InitialHealingPower;
+			CurrentHealingPower = MaxHealingPower;
 			Blocking = false;
+		}
+
+		public void UpgradeStat(UnitStat stat)
+		{
+			switch (stat)
+			{
+				case UnitStat.HP:
+					MaxHP += 10;
+					break;
+				case UnitStat.Strength:
+					Strength += 5;
+					break;
+				case UnitStat.Evasion:
+					Evasion += (1f - Evasion) * 0.1f;
+					break;
+				case UnitStat.HealingPower:
+					MaxHealingPower += (1f - MaxHealingPower) * 0.2f;
+					break;
+				case UnitStat.HealingPowerDecay:
+					HealingPowerDecay *= 0.8f;
+					break;
+			}
 		}
 
 		public string GetStats()
@@ -184,7 +206,7 @@ namespace Combat
 				$"\nWeapon: {Weapon.GetStats()}" +
 				$"\nShield: {Shield.GetStats()}" +
 				$"\nBody Armor: {BodyArmor.GetStats()}" +
-				$"\nHealing Power: {EffectiveHealPower} ({HealingPower*100f:0.00}%)";
+				$"\nHealing Power: {EffectiveHealPower} ({CurrentHealingPower*100f:0.00}%)";
 		}
 
 		public string GetCombatStats()
@@ -194,7 +216,7 @@ namespace Combat
 				$"\nAttack Power: {EffectiveAttack} ({Strength}+{Weapon.Damage})" +
 				$"\nDefense: {EffectiveDefense} ({BodyArmor.Defense}+{(Blocking? Shield.Defense : 0)})" +
 				$"\nEvasion: {Evasion * 100f:0.00}%" +
-				$"\nHealing Power: {EffectiveHealPower} ({HealingPower * 100f:0.00}%)";
+				$"\nHealing Power: {EffectiveHealPower} ({CurrentHealingPower * 100f:0.00}%)";
 		}
 
 		public override string ToString()
@@ -229,7 +251,7 @@ namespace Combat
 
 		private void ReduceHealingPower()
 		{
-			HealingPower *= 1f - HealingPowerDecay;
+			CurrentHealingPower *= 1f - HealingPowerDecay;
 		}
 
 		private int GetUnblockedDamage(int damage)
@@ -248,6 +270,15 @@ namespace Combat
 				throw new InvalidOperationException($"{this} is dead and cannot act.");
 		}
 
+	}
+
+	enum UnitStat
+	{
+		HP,
+		Strength,
+		Evasion,
+		HealingPower,
+		HealingPowerDecay,
 	}
 
 	enum UnitAction
