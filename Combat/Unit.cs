@@ -180,10 +180,10 @@ namespace Combat
 			switch (stat)
 			{
 				case UnitStat.HP:
-					MaxHP += 10;
+					MaxHP += 5;
 					break;
 				case UnitStat.Strength:
-					Strength += 5;
+					Strength += 1;
 					break;
 				case UnitStat.Evasion:
 					Evasion += (1f - Evasion) * 0.1f;

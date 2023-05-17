@@ -60,7 +60,8 @@ namespace Adventure
 
 		private void PrintNewStats()
 		{
-			Console.WriteLine($"\n{_unit}'s current stats are now:\n\n{_unit.GetStats()}");
+			Console.WriteLine($"\n{_unit}'s current stats are now:\n\n{_unit.GetStats()}\n\n(Press any key to continue...)");
+			Utility.BlockUntilKeyDown();
 		}
 
 		private bool Upgrade(int input)

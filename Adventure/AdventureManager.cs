@@ -60,7 +60,11 @@ namespace Adventure
 			bool playerWins = winner == _playerUnit;
 
 			if (playerWins)
+			{
+				Console.Clear();
+				Console.WriteLine($"{_playerUnit} has defeated {enemy}.");
 				EnemiesKilled++;
+			}
 			
 			return playerWins;
 		}
@@ -84,7 +88,7 @@ namespace Adventure
 			StringBuilder stringBuilder = new StringBuilder();
 			for (int i = 0; i < enemies.Length; i++)
 				stringBuilder.Append($"{i+1}: {enemies[i]}\n");
-			stringBuilder.Append($"{enemies.Length}+: ???\n");
+			stringBuilder.Append($"{enemies.Length+1}+: ???\n");
 			Console.Write(stringBuilder.ToString());
 		}
 

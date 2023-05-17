@@ -6,8 +6,8 @@ namespace Templates
 
 	static class Units
 	{
-		public static Unit hero = new Unit("Hero", 50, 5, 0.2f, 1f, 0.5f, Weapons.rustedBlade, Armors.rustedBuckler, Armors.rustedChestplate);
-		public static Unit antiHero = new Unit("Anti-Hero", 45, 4, 0.15f, 0.9f, 0.45f, Weapons.rustedBlade, Armors.rustedBuckler, Armors.rustedChestplate);
+		public static Unit hero = new Unit("Hero", 50, 5, 0.2f, 0.5f, 0.5f, Weapons.rustedBlade, Armors.rustedBuckler, Armors.rustedChestplate);
+		public static Unit antiHero = new Unit("Anti-Hero", 45, 4, 0.15f, 0.45f, 0.55f, Weapons.rustedBlade, Armors.rustedBuckler, Armors.rustedChestplate);
 		public static Unit annoyingFly = new Unit("Annoying Fly", 1, 0, 0.8f, 0f, 1f, Weapons.nothing, Armors.nothing, Armors.nothing);
 		public static Unit slime = new Unit("Slime", 10, 1, 0.15f, 0.5f, 1f, Weapons.nothing, Armors.nothing, Armors.nothing);
 		public static Unit imp = new Unit("Imp", 20, 2, 0.3f, 0.2f, 0.8f, Weapons.magicWand, Armors.rustedBuckler, Armors.tatteredRags);
