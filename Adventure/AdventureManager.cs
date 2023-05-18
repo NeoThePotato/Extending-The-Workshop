@@ -9,17 +9,26 @@ namespace Adventure
 	{
 
 		private Unit _playerUnit;
+		private Unit _finalBossUnit;
 		private Unit[] _enemyPool;
 		private RewardsMerchant _rewardsMerchant;
+
+		private bool FinalBossReady
+		{ get => EnemiesKilled > 10; }
 		private int EnemiesKilled
 		{ get; set; }
-
-		private const int ENEMY_SELECTION_SIZE = 3;
+		private bool PlayerUnitDead
+		{ get => _playerUnit.Dead; }
+		private bool FinalBossDead
+		{ get => _finalBossUnit.Dead; }
+		private int EnemySelectionSize
+		{ get => FinalBossReady ? 4 : 3; }
 
 		public AdventureManager()
 		{
-			_playerUnit = Units.hero;
-			_enemyPool = new Unit[] { Units.slime, Units.fae, Units.annoyingFly, Units.imp, Units.spawnOfTwilight, Units.antiHero, Units.invincibleArchdemon};
+			_playerUnit = new Unit(Units.hero);
+			_finalBossUnit = new Unit(Units.tyrantKing);
+			_enemyPool = new Unit[] { Units.slime, Units.fae, Units.annoyingFly, Units.imp, Units.spawnOfTwilight, Units.antiHero, Units.invincibleArchdemon, Units.tyrantKingClone};
 			_rewardsMerchant = new RewardsMerchant(_playerUnit);
 		}
 
@@ -40,7 +49,7 @@ namespace Adventure
 		private void AdventureLoop()
 		{
 			// Some would call this the "Core gameplay loop" :)
-			while (FindEncounter())
+			while (FindEncounter() && !FinalBossDead)
 			{
 				_rewardsMerchant.UpgradeScreen();
 			}
@@ -48,7 +57,12 @@ namespace Adventure
 
 		private void AdventureEnd()
 		{
-			Console.WriteLine($"\nAnd so end {_playerUnit.Name}'s adventure.\nThey have felled {EnemiesKilled} enemies along the way.");
+			if (PlayerUnitDead)
+				Console.WriteLine($"{_playerUnit} has been defeated.");
+			if (FinalBossDead)
+				Console.WriteLine($"{_playerUnit} has triumphed over {_finalBossUnit}.");
+
+			Console.WriteLine($"\nAnd so end {_playerUnit}'s adventure.\nThey have defeated {EnemiesKilled} enemies along the way.");
 		}
 
 		private bool FindEncounter()
@@ -76,10 +90,10 @@ namespace Adventure
 
 		private Unit PickEnemyScreen()
 		{
-			Unit[] enemies = GetEnemySelection(ENEMY_SELECTION_SIZE);
+			Unit[] enemies = GetEnemySelection(EnemySelectionSize);
 			PrintEnemySelection(enemies);
 
-			return new Unit(GetEnemySelectionPlayerInput(enemies));
+			return GetEnemySelectionPlayerInput(enemies);
 
 		}
 
@@ -115,7 +129,10 @@ namespace Adventure
 			Unit[] units = new Unit[num];
 
 			for (int i = 0; i < num; i++)
-				units[i] = GetRandomEnemy();
+				units[i] = new Unit(GetRandomEnemy());
+
+			if (FinalBossReady)
+				units[units.Length-1] = _finalBossUnit;
 
 			return Utility.RemoveDuplicates(units);
 		}
