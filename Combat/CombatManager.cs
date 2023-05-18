@@ -1,112 +1,211 @@
-﻿using Combat.Equipment;
-using System.Text;
-
-namespace Combat
+﻿namespace Combat
 {
 	class CombatManager
 	{
 
-		public const int GRID_SIZE = 3;
+		private Unit _playerUnit;
+		private Unit _cpuUnit;
 
-		Unit[] PlayerUnits;
-		Unit[] CPUUnits;
-		Grid PlayerGrid { get; set; }
-		Grid CPUGrid { get; set; }
-
-		public CombatManager(Unit[] playerUnits, Unit[] cpuUnits)
+		private bool BothAlive
 		{
-			PlayerUnits = playerUnits;
-			CPUUnits = cpuUnits;
-			PlayerGrid = new Grid(GRID_SIZE);
-			CPUGrid = new Grid(GRID_SIZE);
+			get => !_playerUnit.Dead && !_cpuUnit.Dead;
+		}
 
-			foreach (Unit unit in PlayerUnits)
-			{
-				PlayerGrid.AddUnit(unit);
-			}
+		public CombatManager(Unit playerUnit, Unit cpuUnit)
+		{
+			_playerUnit = playerUnit;
+			_cpuUnit = cpuUnit;
+		}
 
-			foreach (Unit unit in CPUUnits)
+		public Unit Combat()
+		{
+			CombatInitiate();
+			CombatLoop();
+			CombatEnd();
+
+			return GetWinner();
+		}
+
+		private void CombatInitiate()
+		{
+			_playerUnit.ResetTempStats();
+			_cpuUnit.ResetTempStats();
+			Console.Clear();
+			Console.WriteLine($"{_playerUnit} has encountered a {_cpuUnit}.");
+			Utility.BlockUntilKeyDown();
+		}
+
+		private void CombatLoop()
+		{
+			Unit actingUnit = _playerUnit;
+			Unit passiveUnit = _cpuUnit;
+			CombatFeedback combatFeedback = new CombatFeedback();
+
+			// Main combat loop
+			while (BothAlive)
 			{
-				CPUGrid.AddUnit(unit);
+				// Print combat status
+				Console.Clear();
+				Console.WriteLine(
+					$"{_playerUnit.GetCombatStats()}\n\n" +
+					$"{_cpuUnit.GetCombatStats()}\n\n" +
+					$"{actingUnit}'s turn.\n");
+
+				// Action phase
+				UnitAction action = (actingUnit == _playerUnit) ? GetPlayerAction() : GetCPUAction();
+				DoAction(action, actingUnit, passiveUnit, ref combatFeedback);
+
+				// End of action phase
+				Console.WriteLine(combatFeedback.ParseFeedback());
+				Utility.BlockUntilKeyDown();
+
+				// Prepare for next turn
+				Utility.Swap(ref actingUnit, ref passiveUnit);
 			}
 		}
 
-		public void CombatLoop()
+		private void CombatEnd()
 		{
+			Console.WriteLine($"{GetWinner()} wins!");
+		}
 
-			while (true) // TODO Implement
+		private UnitAction GetPlayerAction()
+		{
+			Console.WriteLine(
+				$"What will {_playerUnit} do?\n" +
+				$"{GetPlayerOptions()}");
+
+			return GetPlayerInput() switch
 			{
-				// Player turn
-				foreach (Unit unit in PlayerUnits)
-					PlayerUnitAct(unit);
+				1 => UnitAction.Attack,
+				2 => UnitAction.Defend,
+				3 => UnitAction.Heal,
+				_ => UnitAction.Attack,
+			};
+		}
 
-				if (AllDead(CPUUnits))
+		private UnitAction GetCPUAction()
+		{
+			Thread.Sleep(300);
+			CPUAI ai = new CPUAI(_cpuUnit, _playerUnit);
+
+			return ai.GetCPUAction();
+		}
+
+		private void DoAction(UnitAction action, Unit actingUnit, Unit passiveUnit, ref CombatFeedback feedback)
+		{
+			switch (action)
+			{
+				case UnitAction.Attack:
+					actingUnit.AttackOther(passiveUnit, ref feedback);
 					break;
-
-				// CPU turn
-				foreach (Unit unit in CPUUnits)
-					CPUUnitAct(unit);
-
-				if (AllDead(PlayerUnits))
+				case UnitAction.Defend:
+					actingUnit.RaiseShield(ref feedback);
+					break;
+				case UnitAction.Heal:
+					actingUnit.HealSelf(ref feedback);
 					break;
 			}
 		}
 
-		private void PlayerUnitAct(Unit unit)
+		private string GetPlayerOptions()
 		{
-			unit.Blocking = false;
-			Console.WriteLine($"{unit} is acting.");
-			Console.WriteLine($"What will {unit} do?");
-
+			return	("1: Attack\n" +
+					"2: Defend\n" +
+					"3: Heal");
 		}
 
-		private void CPUUnitAct(Unit unit)
+		private int GetPlayerInput()
 		{
-			if (unit.Dead)
+			int input;
+			while (true)
 			{
-				return;
-			}
-			else
-			{
-				Unit attackedPlayerUnit = PickRandomUnit(PlayerUnits);
-				AttackUnit(unit, attackedPlayerUnit);
-			}
-		}
-
-		private void AttackUnit(Unit attacker, Unit attacked)
-		{
-			int previousHP = attacked.CurrentHP;
-			attacker.AttackOther(attacked);
-			Console.WriteLine($"{attacker} attacked {attacked} and dealt {previousHP - attacked.CurrentHP} damage.");
-		}
-
-		private static (int, int) GetMyPosition(Unit unit, Grid grid)
-		{
-			throw new NotImplementedException();
-		}
-
-		private static Unit[] GetTargetableUnits(Unit unit)
-		{
-			throw new NotImplementedException();
-		}
-
-		private static bool AllDead(Unit[] units)
-		{
-			foreach (Unit unit in units)
-			{
-				if (!unit.Dead)
+				if (!int.TryParse(Console.ReadLine(), out input) || 1 > input || input > 3)
 				{
-					return false;
+					(int left, int top) = Console.GetCursorPosition();
+					Console.SetCursorPosition(left, top - 1);
+					continue;
 				}
+				return input;
 			}
-
-			return true;
 		}
 
-		private static Unit PickRandomUnit(Unit[] units)
+		private Unit GetWinner()
 		{
-			return units[Random.Shared.Next(0, units.Length)];
+			return _cpuUnit.Dead ? _playerUnit : _cpuUnit;
 		}
 
+	}
+
+	struct CPUAI
+	{
+
+		private Unit PlayerUnit;
+		private Unit CPUUnit;
+
+		// Flags useful for AI decision-making
+		private int DamageToPlayer
+		{
+			get => PlayerUnit.CalculateTotalDamageFrom(CPUUnit);
+		}
+		private int DamageFromPlayer
+		{
+			get => CPUUnit.CalculateTotalDamageFrom(PlayerUnit);
+		}
+		private bool PlayerDiesIfHit
+		{
+			get => DamageToPlayer >= PlayerUnit.CurrentHP;
+		}
+		private bool CPUDiesIfHit
+		{
+			get => DamageFromPlayer >= CPUUnit.CurrentHP;
+		}
+		private bool CPUCanHeal
+		{
+			get => CPUUnit.EffectiveHealPower > 0;
+		}
+		private bool CPUCanBlock
+		{
+			get => !CPUUnit.Blocking;
+		}
+		private bool CPUCanOutHealFatalAttack
+		{
+			get => CPUCanHeal && (CPUUnit.CurrentHP + CPUUnit.EffectiveHealPower - DamageFromPlayer > 0);
+		}
+		private bool CPUCanBlockFatalAttack
+		{
+			get => CPUCanBlock && (CPUUnit.CurrentHP + CPUUnit.EffectiveDefense + CPUUnit.Shield.Defense - DamageFromPlayer > 0);
+		}
+		private bool CPUShouldHeal
+		{
+			get => CPUDiesIfHit && CPUCanOutHealFatalAttack;
+		}
+		private bool CPUShouldAttack
+		{
+			get => PlayerDiesIfHit || !CPUDiesIfHit;
+		}
+		private bool CPUShouldBlock
+		{
+			get => CPUDiesIfHit && CPUCanBlockFatalAttack;
+		}
+		
+		public CPUAI(Unit cpuUnit, Unit playerUnit)
+		{
+			CPUUnit = cpuUnit;
+			PlayerUnit = playerUnit;
+		}
+
+		public UnitAction GetCPUAction()
+		{
+			if (CPUShouldHeal)
+				return UnitAction.Heal; // Highest priority
+			else if (CPUShouldAttack)
+				return UnitAction.Attack; // Usually happens
+			else if (CPUShouldBlock)
+				return UnitAction.Defend; // Happens when healing runs out
+			else
+				return UnitAction.Attack; // Desperate efforts
+		}
+	
 	}
 }
